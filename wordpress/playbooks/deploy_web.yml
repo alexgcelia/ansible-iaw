@@ -1,0 +1,81 @@
+---
+- name: Playbook para hacer el deploy de la aplicación web PrestaShop
+  hosts: frontend
+  become: yes
+
+  vars_files:
+    - ../vars/variables.yml
+
+  tasks:
+
+    - name: Borrar archivos previos de wordpress.
+      file:
+        path: /tmp/wp-cli.phar
+        state: absent
+
+    - name: Descargar el código fuente de Wordpress.
+      get_url:
+        url: https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+        dest: /tmp
+        mode: 0755
+
+    - name: Movemos el fichero a bin para incluirlo en la lista de comandos.
+      command: mv /tmp/wp-cli.phar /usr/local/bin/wp 
+
+    - name: Eliminamos instalaciones previas de wordpress.
+      shell: rm -rf /var/www/html/*
+
+    - name: Descargamos el codigo fuente de wordpress en /var/www/html 
+      command: wp core download --path=/var/www/html --locale=es_ES --allow-root
+    
+    - name: Creación del archivo wp-config
+      command: wp config create \
+              --dbname="{{ db.name }}" \
+              --dbuser="{{ db.user }}"  \
+              --dbpass="{{ db.password }}" \
+              --dbhost="{{ db.MYSQL_PRIVATE }}" \
+              --path=/var/www/html \
+              --allow-root
+
+    - name: Instalo wordpress
+      command: wp core install \
+                --url="{{ certbot.domain }}" \
+                --title="{{ wordpress.wordpress_title }}" \
+                --admin_user="{{ wordpress.wordpress_admin_user }}" \
+                --admin_password="{{ wordpress.wordpress_admin_pass }}" \
+                --admin_email="{{ wordpress.wordpress_admin_email }}" \
+                --path=/var/www/html \
+                --allow-root
+                
+    - name: Actualizamos el core de wordpress.
+      command: wp core update --path=/var/www/html --allow-root
+
+    - name: Instalamos un tema para wordpress
+      command: wp theme install sydney --activate --path=/var/www/html --allow-root
+   
+    - name: Instalamos un plugin para wordpress. 
+      command: wp plugin install bbpress --activate --path=/var/www/html --allow-root
+   
+    - name: Instalación del plugin para ocultar login.
+      command: wp plugin install wps-hide-login --activate --path=/var/www/html --allow-root
+
+    - name: Habilitamos reescritura para mejorar el seo.
+      command:  wp rewrite structure '/%postname%/' \
+               --path=/var/www/html \
+               --allow-root
+               
+    - name: Actualizar el plugin de wordpress para cambiar el fichero de la página de logín a otro y no aparezca en el navegador.            
+      command: wp option update whl_page "{{ wordpress.WORDPRESS_HIDE_LOGIN }}" --path=/var/www/html --allow-root
+    
+    - name: Copiar el archivo .htacces
+      template: # Si se hace con template se modifica el contenido con variables y además manda el contenido a la máquina destino.
+         src: ../templates/.htaccess
+         dest: /var/www/html/
+         mode: 0755
+
+    - name: Cambiar el propietario de html. 
+      file: 
+        dest: /var/www/html
+        owner: www-data
+        group: www-data
+        recurse: yes
