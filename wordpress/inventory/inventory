@@ -1,8 +1,8 @@
 [frontend]
-44.195.253.227
+34.199.151.166
 
 [backend]
-3.223.203.182
+35.170.221.241
 
 [all:vars]
 ansible_user=ubuntu

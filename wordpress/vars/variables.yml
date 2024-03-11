@@ -3,19 +3,19 @@ db:
     name: wordpress_db
     user: wordpress_user
     password: wordpress_passwd
-    MYSQL_PRIVATE: 172.31.86.216
+    MYSQL_PRIVATE: 172.31.85.162
 
 wordpress:
     wordpress_title: "Sitio web de IAW"
     wordpress_admin_user: admin
     wordpress_admin_pass: admin
     wordpress_admin_email: demo@demo.es
-    WORDPRESS_DB_HOST: 172.31.86.216
+    WORDPRESS_DB_HOST: 172.31.85.162
     WORDPRESS_HIDE_LOGIN: acceso
 
 certbot:
     email: admin_wordpress@email.es
-    domain: hipherion1219.ddns.net
+    domain: ansible-iaw.ddns.net
 
 phpmyadmin:
     user: pma_user
