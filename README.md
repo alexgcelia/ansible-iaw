@@ -2,13 +2,13 @@
 Este repositorio es para la práctica04.4 de Ansible del módulo IAW
 
 # Instalación en 2 niveles con Ansible
-## Instalación pila LAMP
 ### ¿Qué es LAMP?
 #### L → Linux (Sistema operativo).
 #### A → Apache (Servidor web).
 #### M → MySQL/MariaDB (Sistema gestor de base de datos).
 #### P → PHP (Lenguaje de programación).
 
+## Instalación pila LAMP
 ### Archivo inventory/inventory
 ```
 [frontend]
